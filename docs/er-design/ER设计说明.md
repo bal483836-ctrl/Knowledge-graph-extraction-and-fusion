@@ -215,14 +215,15 @@ flowchart LR
   classDef host fill:#d9ead3,stroke:#38761d,color:#000;
   classDef dis  fill:#f4cccc,stroke:#cc0000,color:#000;
 
-  HERB["中药<br/>herb"]:::chem
-  C["中药原型成分<br/>compound<br/>(is_tcm_prototype)"]:::chem
-  HERB -->|herb_compound| C
+  %% ---- 节点 ----
+  HERB["中药<br/>herb"]
+  C["中药原型成分<br/>compound<br/>(is_tcm_prototype)"]
+  T["宿主靶点<br/>host_target (人/鼠)"]
+  RXN{{"生物转化反应 biotransformation<br/>谁·用什么·底物→产物"}}
+  M["代谢物<br/>compound"]
+  SUB["内/外源性底物<br/>compound"]
+  D["疾病<br/>disease"]
 
-  %% 路线①
-  C -->|"① 直接作用<br/>compound_target<br/>route=入血/肠道局部"| T["宿主靶点<br/>host_target (人/鼠)"]:::host
-
-  %% FOCUS 脊柱
   subgraph FOCUS["★ 后续完善重点：肠道菌 功能基因 与 酶"]
     direction LR
     MB["肠道菌<br/>microbe"]
@@ -232,23 +233,27 @@ flowchart LR
     MB --> GN --> FG -->|gene_enzyme| EZ
   end
 
-  %% 路线②
-  C -->|"② 作为药源性底物"| RXN{{"生物转化反应 biotransformation<br/>谁·用什么·底物→产物"}}:::hub
+  %% ---- 连边（三条去路）----
+  HERB -->|herb_compound| C
+  C -->|"① 直接作用<br/>compound_target<br/>route=入血/肠道局部"| T
+  C -->|"② 作为药源性底物"| RXN
   MB --> RXN
   FG --> RXN
   EZ --> RXN
-  RXN -->|"产物 = 药源性代谢物"| M["代谢物<br/>compound"]:::chem
+  RXN -->|"产物 = 药源性代谢物"| M
   M -->|"compound_target<br/>role=药源性代谢物"| T
-
-  %% 路线③
   C -->|"③ 促进/抑制特定菌<br/>compound_microbe"| MB
   MB -->|"交叉喂养/竞争<br/>microbe_interaction"| MB
-  SUB["内/外源性底物<br/>compound"]:::chem --> RXN
+  SUB --> RXN
   RXN -->|"产物 = 内/外源代谢物"| M
-
-  %% 收口
-  T -->|target_disease| D["疾病<br/>disease"]:::dis
+  T -->|target_disease| D
   MB -.->|"microbe_disease (整合 Disbiome)"| D
+
+  %% ---- 样式 ----
+  class HERB,C,M,SUB chem
+  class RXN hub
+  class T host
+  class D dis
 ```
 
 ### 6.2 完整 ER 图（实体 + 关联实体 + 证据）
