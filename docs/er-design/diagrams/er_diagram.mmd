@@ -1,201 +1,202 @@
-%% 完整 ER 图：13 个实体 + 10 张关系表(关联实体) + 证据元数据
+%% 完整 ER 图（中英文对照）：13 个实体 + 10 张关系表(关联实体) + 证据元数据
+%% 实体名/关系标签均为「中文 English」；列名用英文(SQL 友好) + 中文注释
 %% 粘贴到 https://mermaid.live 可渲染并导出 PNG/SVG
 erDiagram
-  HERB_CATEGORY ||--o{ HERB : 分类
-  HERB ||--o{ HERB_COMPOUND : 含有
-  COMPOUND ||--o{ HERB_COMPOUND : 存在于
+  HERB_CATEGORY ||--o{ HERB : "分类 category"
+  HERB ||--o{ HERB_COMPOUND : "含有 has"
+  COMPOUND ||--o{ HERB_COMPOUND : "存在于 in"
 
-  MICROBE ||--o{ MICROBE : 分类上级
-  MICROBE ||--o{ GENOME : 拥有
-  GENOME ||--o{ FUNCTIONAL_GENE : 包含
-  MICROBE ||--o{ FUNCTIONAL_GENE : 携带
-  FUNCTIONAL_GENE ||--o{ GENE_ENZYME : 编码
-  ENZYME ||--o{ GENE_ENZYME : 被编码
+  MICROBE ||--o{ MICROBE : "分类上级 parent"
+  MICROBE ||--o{ GENOME : "拥有 has"
+  GENOME ||--o{ FUNCTIONAL_GENE : "包含 contains"
+  MICROBE ||--o{ FUNCTIONAL_GENE : "携带 carries"
+  FUNCTIONAL_GENE ||--o{ GENE_ENZYME : "编码 encodes"
+  ENZYME ||--o{ GENE_ENZYME : "被编码 encoded_by"
 
-  COMPOUND ||--o{ BIOTRANSFORMATION : 底物
-  COMPOUND ||--o{ BIOTRANSFORMATION : 产物
-  MICROBE ||--o{ BIOTRANSFORMATION : 催化菌
-  FUNCTIONAL_GENE ||--o{ BIOTRANSFORMATION : 催化基因
-  ENZYME ||--o{ BIOTRANSFORMATION : 催化酶
+  COMPOUND ||--o{ BIOTRANSFORMATION : "底物 substrate"
+  COMPOUND ||--o{ BIOTRANSFORMATION : "产物 product"
+  MICROBE ||--o{ BIOTRANSFORMATION : "催化菌 catalyst"
+  FUNCTIONAL_GENE ||--o{ BIOTRANSFORMATION : "催化基因 gene"
+  ENZYME ||--o{ BIOTRANSFORMATION : "催化酶 enzyme"
 
-  COMPOUND ||--o{ COMPOUND_TARGET : 作用物
-  HOST_TARGET ||--o{ COMPOUND_TARGET : 被作用
-  HOST_TARGET ||--o{ TARGET_DISEASE : 关联
-  DISEASE ||--o{ TARGET_DISEASE : 关联
-  HOST_TARGET ||--o{ TARGET_PATHWAY : 参与
-  PATHWAY ||--o{ TARGET_PATHWAY : 包含
+  COMPOUND ||--o{ COMPOUND_TARGET : "作用物 actor"
+  HOST_TARGET ||--o{ COMPOUND_TARGET : "被作用 acted_on"
+  HOST_TARGET ||--o{ TARGET_DISEASE : "关联 relates"
+  DISEASE ||--o{ TARGET_DISEASE : "关联 relates"
+  HOST_TARGET ||--o{ TARGET_PATHWAY : "参与 in"
+  PATHWAY ||--o{ TARGET_PATHWAY : "包含 has"
 
-  COMPOUND ||--o{ COMPOUND_MICROBE : 调控
-  MICROBE ||--o{ COMPOUND_MICROBE : 被调控
-  MICROBE ||--o{ MICROBE_INTERACTION : 菌A
-  MICROBE ||--o{ MICROBE_INTERACTION : 菌B
-  MICROBE ||--o{ MICROBE_DISEASE : 关联
-  DISEASE ||--o{ MICROBE_DISEASE : 关联
+  COMPOUND ||--o{ COMPOUND_MICROBE : "调控 modulates"
+  MICROBE ||--o{ COMPOUND_MICROBE : "被调控 modulated"
+  MICROBE ||--o{ MICROBE_INTERACTION : "菌A microbe_A"
+  MICROBE ||--o{ MICROBE_INTERACTION : "菌B microbe_B"
+  MICROBE ||--o{ MICROBE_DISEASE : "关联 relates"
+  DISEASE ||--o{ MICROBE_DISEASE : "关联 relates"
 
-  COMPOUND ||--o{ COMPOUND_ENZYME_MODULATION : 调控
-  ENZYME ||--o{ COMPOUND_ENZYME_MODULATION : 被调控
-  FUNCTIONAL_GENE ||--o{ COMPOUND_ENZYME_MODULATION : 被调控
+  COMPOUND ||--o{ COMPOUND_ENZYME_MODULATION : "调控 modulates"
+  ENZYME ||--o{ COMPOUND_ENZYME_MODULATION : "被调控 modulated"
+  FUNCTIONAL_GENE ||--o{ COMPOUND_ENZYME_MODULATION : "被调控 modulated"
 
-  PUBLICATION ||--o{ BIOTRANSFORMATION : 证据
-  PUBLICATION ||--o{ COMPOUND_TARGET : 证据
-  PUBLICATION ||--o{ COMPOUND_MICROBE : 证据
-  PUBLICATION ||--o{ TARGET_DISEASE : 证据
-  PUBLICATION ||--o{ MICROBE_DISEASE : 证据
-  HOST ||--o{ BIOTRANSFORMATION : 体系
-  HOST ||--o{ COMPOUND_MICROBE : 体系
-  METHODOLOGY ||--o{ BIOTRANSFORMATION : 方法
-  METHODOLOGY ||--o{ COMPOUND_MICROBE : 方法
+  PUBLICATION ||--o{ BIOTRANSFORMATION : "证据 evidence"
+  PUBLICATION ||--o{ COMPOUND_TARGET : "证据 evidence"
+  PUBLICATION ||--o{ COMPOUND_MICROBE : "证据 evidence"
+  PUBLICATION ||--o{ TARGET_DISEASE : "证据 evidence"
+  PUBLICATION ||--o{ MICROBE_DISEASE : "证据 evidence"
+  HOST ||--o{ BIOTRANSFORMATION : "体系 host"
+  HOST ||--o{ COMPOUND_MICROBE : "体系 host"
+  METHODOLOGY ||--o{ BIOTRANSFORMATION : "方法 method"
+  METHODOLOGY ||--o{ COMPOUND_MICROBE : "方法 method"
 
-  COMPOUND {
+  COMPOUND["化合物/成分 Compound"] {
     bigint compound_id PK
-    string inchikey "唯一·跨库键"
-    string name
-    bool is_tcm_prototype "是否原型成分"
-    float ob "口服生物利用度"
-    float drug_likeness
+    string inchikey "唯一·跨库键 unique key"
+    string name "名称 name"
+    bool is_tcm_prototype "是否原型成分 is prototype"
+    float ob "口服生物利用度 oral bioavail."
+    float drug_likeness "类药性 drug-likeness"
   }
-  MICROBE {
+  MICROBE["肠道菌 Microbe"] {
     bigint microbe_id PK
-    string scientific_name
-    string ncbi_taxon_id "唯一"
-    string rank "门纲目科属种株"
-    bigint parent_taxon_id FK "分类上级"
+    string scientific_name "学名 sci. name"
+    string ncbi_taxon_id "唯一 unique"
+    string rank "分类级别 rank"
+    bigint parent_taxon_id FK "分类上级 parent"
   }
-  GENOME {
+  GENOME["细菌基因组 Genome"] {
     bigint genome_id PK
-    bigint microbe_id FK
-    string assembly_accession
-    string strain_name
+    bigint microbe_id FK "所属菌 microbe"
+    string assembly_accession "装配号 accession"
+    string strain_name "菌株 strain"
   }
-  FUNCTIONAL_GENE {
+  FUNCTIONAL_GENE["功能基因/基因簇 FunctionalGene"] {
     bigint gene_id PK
-    bigint genome_id FK
-    bigint microbe_id FK
-    string ko_id "KEGG Ortholog"
-    string cazy_family
-    bool is_cluster "基因簇/BGC"
+    bigint genome_id FK "基因组 genome"
+    bigint microbe_id FK "菌 microbe"
+    string ko_id "KEGG 直系同源 KO"
+    string cazy_family "碳水酶家族 CAZy"
+    bool is_cluster "是否基因簇/BGC cluster"
   }
-  ENZYME {
+  ENZYME["酶 Enzyme"] {
     bigint enzyme_id PK
-    string ec_number
-    string reaction_family "BSH/偶氮还原酶/GH…"
-    string cofactor
+    string ec_number "EC 号 EC no."
+    string reaction_family "反应家族 family"
+    string cofactor "辅因子 cofactor"
   }
-  GENE_ENZYME {
-    bigint gene_id FK
-    bigint enzyme_id FK
-    string annotation_evidence "预测/实验"
+  GENE_ENZYME["功能基因-酶 Gene_Enzyme"] {
+    bigint gene_id FK "基因 gene"
+    bigint enzyme_id FK "酶 enzyme"
+    string annotation_evidence "证据 predicted/exp."
   }
-  BIOTRANSFORMATION {
+  BIOTRANSFORMATION["生物转化反应 Biotransformation"] {
     bigint rxn_id PK
-    bigint substrate_compound_id FK
-    bigint product_compound_id FK
-    bigint microbe_id FK
-    bigint gene_id FK
-    bigint enzyme_id FK
-    string substrate_role "药源/内源/外源底物"
-    string product_role "药源/内源/外源代谢物"
-    string reaction_type "水解/还原/去糖基化…"
-    string evidence_type "体内/体外/计算"
-    bigint pub_id FK
+    bigint substrate_compound_id FK "底物 substrate"
+    bigint product_compound_id FK "产物 product"
+    bigint microbe_id FK "催化菌 microbe"
+    bigint gene_id FK "功能基因 gene"
+    bigint enzyme_id FK "酶 enzyme"
+    string substrate_role "底物角色 subst. role"
+    string product_role "产物角色 prod. role"
+    string reaction_type "反应类型 rxn type"
+    string evidence_type "证据类型 in_vitro/vivo"
+    bigint pub_id FK "文献 publication"
   }
-  HOST_TARGET {
+  HOST_TARGET["宿主靶点 HostTarget"] {
     bigint target_id PK
-    string gene_symbol
-    string uniprot_id
-    string organism "human/mouse"
-    string target_type
+    string gene_symbol "基因符号 symbol"
+    string uniprot_id "UniProt 号"
+    string organism "物种 human/mouse"
+    string target_type "靶点类型 type"
   }
-  COMPOUND_TARGET {
+  COMPOUND_TARGET["成分-靶点 Compound_Target"] {
     bigint ct_id PK
-    bigint compound_id FK
-    bigint target_id FK
-    string compound_role "原型直接/药源代谢物/微生物代谢物"
-    string action_type "激动/拮抗/抑制/调节"
-    string action_route "入血/肠道局部/经代谢物"
-    bool validated "实验验证"
-    bigint pub_id FK
+    bigint compound_id FK "成分 compound"
+    bigint target_id FK "靶点 target"
+    string compound_role "成分角色 role"
+    string action_type "作用方式 action"
+    string action_route "发生途径 route"
+    bool validated "实验验证 validated"
+    bigint pub_id FK "文献 publication"
   }
-  DISEASE {
+  DISEASE["疾病 Disease"] {
     bigint disease_id PK
-    string name
-    string icd10
-    string meddra_id
+    string name "名称 name"
+    string icd10 "ICD-10 编码"
+    string meddra_id "MedDRA 号"
   }
-  TARGET_DISEASE {
+  TARGET_DISEASE["靶点-疾病 Target_Disease"] {
     bigint td_id PK
-    bigint target_id FK
-    bigint disease_id FK
-    string relation "致病/治疗/标志物"
-    bigint pub_id FK
+    bigint target_id FK "靶点 target"
+    bigint disease_id FK "疾病 disease"
+    string relation "关系 relation"
+    bigint pub_id FK "文献 publication"
   }
-  COMPOUND_MICROBE {
+  COMPOUND_MICROBE["成分-菌调控 Compound_Microbe"] {
     bigint cm_id PK
-    bigint compound_id FK
-    bigint microbe_id FK
-    string effect "促进/抑制"
-    string abundance_change "上升/下降"
-    bigint pub_id FK
+    bigint compound_id FK "成分 compound"
+    bigint microbe_id FK "菌 microbe"
+    string effect "效应 promote/inhibit"
+    string abundance_change "丰度变化 up/down"
+    bigint pub_id FK "文献 publication"
   }
-  MICROBE_INTERACTION {
+  MICROBE_INTERACTION["菌-菌互作 Microbe_Interaction"] {
     bigint mi_id PK
-    bigint microbe_a_id FK
-    bigint microbe_b_id FK
-    string interaction_type "交叉喂养/竞争"
-    bigint exchanged_compound_id FK
+    bigint microbe_a_id FK "菌A microbe A"
+    bigint microbe_b_id FK "菌B microbe B"
+    string interaction_type "互作类型 type"
+    bigint exchanged_compound_id FK "交换物 exchanged"
   }
-  MICROBE_DISEASE {
+  MICROBE_DISEASE["菌-疾病 Microbe_Disease"] {
     bigint md_id PK
-    bigint microbe_id FK
-    bigint disease_id FK
-    string direction "富集/减少"
-    bigint pub_id FK
+    bigint microbe_id FK "菌 microbe"
+    bigint disease_id FK "疾病 disease"
+    string direction "方向 enriched/depleted"
+    bigint pub_id FK "文献 publication"
   }
-  COMPOUND_ENZYME_MODULATION {
+  COMPOUND_ENZYME_MODULATION["成分调控菌酶 Compound_Enzyme_Modulation"] {
     bigint cem_id PK
-    bigint compound_id FK
-    bigint enzyme_id FK
-    bigint gene_id FK
-    string effect "诱导/抑制"
+    bigint compound_id FK "成分 compound"
+    bigint enzyme_id FK "酶 enzyme"
+    bigint gene_id FK "功能基因 gene"
+    string effect "效应 induce/inhibit"
   }
-  HERB {
+  HERB["中药 Herb"] {
     bigint herb_id PK
-    string cn_name
-    string pinyin
-    bigint category_id FK
+    string cn_name "中文名 cn name"
+    string pinyin "拼音 pinyin"
+    bigint category_id FK "分类 category"
   }
-  HERB_CATEGORY {
+  HERB_CATEGORY["中药分类 HerbCategory"] {
     bigint category_id PK
-    string cn_name
-    bigint parent_id FK
+    string cn_name "中文名 cn name"
+    bigint parent_id FK "上级 parent"
   }
-  HERB_COMPOUND {
-    bigint herb_id FK
-    bigint compound_id FK
-    string content "含量"
+  HERB_COMPOUND["中药-成分 Herb_Compound"] {
+    bigint herb_id FK "中药 herb"
+    bigint compound_id FK "成分 compound"
+    string content "含量 content"
   }
-  PATHWAY {
+  PATHWAY["信号通路 Pathway"] {
     bigint pathway_id PK
-    string name
-    string source "KEGG/Reactome"
+    string name "名称 name"
+    string source "来源 KEGG/Reactome"
   }
-  TARGET_PATHWAY {
-    bigint target_id FK
-    bigint pathway_id FK
+  TARGET_PATHWAY["靶点-通路 Target_Pathway"] {
+    bigint target_id FK "靶点 target"
+    bigint pathway_id FK "通路 pathway"
   }
-  PUBLICATION {
+  PUBLICATION["文献 Publication"] {
     bigint pub_id PK
-    string pmid "唯一"
-    string doi
-    int year
+    string pmid "唯一 PMID"
+    string doi "DOI"
+    int year "年份 year"
   }
-  HOST {
+  HOST["宿主 Host"] {
     bigint host_id PK
-    string species "人/鼠"
-    string model "无菌鼠/人源化菌群鼠…"
+    string species "物种 human/mouse"
+    string model "模型 model"
   }
-  METHODOLOGY {
+  METHODOLOGY["方法学 Methodology"] {
     bigint method_id PK
-    string detection_method "16S/宏基因组/代谢组"
-    string platform
+    string detection_method "检测方法 method"
+    string platform "平台 platform"
   }
