@@ -1,0 +1,201 @@
+%% 完整 ER 图：13 个实体 + 10 张关系表(关联实体) + 证据元数据
+%% 粘贴到 https://mermaid.live 可渲染并导出 PNG/SVG
+erDiagram
+  HERB_CATEGORY ||--o{ HERB : 分类
+  HERB ||--o{ HERB_COMPOUND : 含有
+  COMPOUND ||--o{ HERB_COMPOUND : 存在于
+
+  MICROBE ||--o{ MICROBE : 分类上级
+  MICROBE ||--o{ GENOME : 拥有
+  GENOME ||--o{ FUNCTIONAL_GENE : 包含
+  MICROBE ||--o{ FUNCTIONAL_GENE : 携带
+  FUNCTIONAL_GENE ||--o{ GENE_ENZYME : 编码
+  ENZYME ||--o{ GENE_ENZYME : 被编码
+
+  COMPOUND ||--o{ BIOTRANSFORMATION : 底物
+  COMPOUND ||--o{ BIOTRANSFORMATION : 产物
+  MICROBE ||--o{ BIOTRANSFORMATION : 催化菌
+  FUNCTIONAL_GENE ||--o{ BIOTRANSFORMATION : 催化基因
+  ENZYME ||--o{ BIOTRANSFORMATION : 催化酶
+
+  COMPOUND ||--o{ COMPOUND_TARGET : 作用物
+  HOST_TARGET ||--o{ COMPOUND_TARGET : 被作用
+  HOST_TARGET ||--o{ TARGET_DISEASE : 关联
+  DISEASE ||--o{ TARGET_DISEASE : 关联
+  HOST_TARGET ||--o{ TARGET_PATHWAY : 参与
+  PATHWAY ||--o{ TARGET_PATHWAY : 包含
+
+  COMPOUND ||--o{ COMPOUND_MICROBE : 调控
+  MICROBE ||--o{ COMPOUND_MICROBE : 被调控
+  MICROBE ||--o{ MICROBE_INTERACTION : 菌A
+  MICROBE ||--o{ MICROBE_INTERACTION : 菌B
+  MICROBE ||--o{ MICROBE_DISEASE : 关联
+  DISEASE ||--o{ MICROBE_DISEASE : 关联
+
+  COMPOUND ||--o{ COMPOUND_ENZYME_MODULATION : 调控
+  ENZYME ||--o{ COMPOUND_ENZYME_MODULATION : 被调控
+  FUNCTIONAL_GENE ||--o{ COMPOUND_ENZYME_MODULATION : 被调控
+
+  PUBLICATION ||--o{ BIOTRANSFORMATION : 证据
+  PUBLICATION ||--o{ COMPOUND_TARGET : 证据
+  PUBLICATION ||--o{ COMPOUND_MICROBE : 证据
+  PUBLICATION ||--o{ TARGET_DISEASE : 证据
+  PUBLICATION ||--o{ MICROBE_DISEASE : 证据
+  HOST ||--o{ BIOTRANSFORMATION : 体系
+  HOST ||--o{ COMPOUND_MICROBE : 体系
+  METHODOLOGY ||--o{ BIOTRANSFORMATION : 方法
+  METHODOLOGY ||--o{ COMPOUND_MICROBE : 方法
+
+  COMPOUND {
+    bigint compound_id PK
+    string inchikey "唯一·跨库键"
+    string name
+    bool is_tcm_prototype "是否原型成分"
+    float ob "口服生物利用度"
+    float drug_likeness
+  }
+  MICROBE {
+    bigint microbe_id PK
+    string scientific_name
+    string ncbi_taxon_id "唯一"
+    string rank "门纲目科属种株"
+    bigint parent_taxon_id FK "分类上级"
+  }
+  GENOME {
+    bigint genome_id PK
+    bigint microbe_id FK
+    string assembly_accession
+    string strain_name
+  }
+  FUNCTIONAL_GENE {
+    bigint gene_id PK
+    bigint genome_id FK
+    bigint microbe_id FK
+    string ko_id "KEGG Ortholog"
+    string cazy_family
+    bool is_cluster "基因簇/BGC"
+  }
+  ENZYME {
+    bigint enzyme_id PK
+    string ec_number
+    string reaction_family "BSH/偶氮还原酶/GH…"
+    string cofactor
+  }
+  GENE_ENZYME {
+    bigint gene_id FK
+    bigint enzyme_id FK
+    string annotation_evidence "预测/实验"
+  }
+  BIOTRANSFORMATION {
+    bigint rxn_id PK
+    bigint substrate_compound_id FK
+    bigint product_compound_id FK
+    bigint microbe_id FK
+    bigint gene_id FK
+    bigint enzyme_id FK
+    string substrate_role "药源/内源/外源底物"
+    string product_role "药源/内源/外源代谢物"
+    string reaction_type "水解/还原/去糖基化…"
+    string evidence_type "体内/体外/计算"
+    bigint pub_id FK
+  }
+  HOST_TARGET {
+    bigint target_id PK
+    string gene_symbol
+    string uniprot_id
+    string organism "human/mouse"
+    string target_type
+  }
+  COMPOUND_TARGET {
+    bigint ct_id PK
+    bigint compound_id FK
+    bigint target_id FK
+    string compound_role "原型直接/药源代谢物/微生物代谢物"
+    string action_type "激动/拮抗/抑制/调节"
+    string action_route "入血/肠道局部/经代谢物"
+    bool validated "实验验证"
+    bigint pub_id FK
+  }
+  DISEASE {
+    bigint disease_id PK
+    string name
+    string icd10
+    string meddra_id
+  }
+  TARGET_DISEASE {
+    bigint td_id PK
+    bigint target_id FK
+    bigint disease_id FK
+    string relation "致病/治疗/标志物"
+    bigint pub_id FK
+  }
+  COMPOUND_MICROBE {
+    bigint cm_id PK
+    bigint compound_id FK
+    bigint microbe_id FK
+    string effect "促进/抑制"
+    string abundance_change "上升/下降"
+    bigint pub_id FK
+  }
+  MICROBE_INTERACTION {
+    bigint mi_id PK
+    bigint microbe_a_id FK
+    bigint microbe_b_id FK
+    string interaction_type "交叉喂养/竞争"
+    bigint exchanged_compound_id FK
+  }
+  MICROBE_DISEASE {
+    bigint md_id PK
+    bigint microbe_id FK
+    bigint disease_id FK
+    string direction "富集/减少"
+    bigint pub_id FK
+  }
+  COMPOUND_ENZYME_MODULATION {
+    bigint cem_id PK
+    bigint compound_id FK
+    bigint enzyme_id FK
+    bigint gene_id FK
+    string effect "诱导/抑制"
+  }
+  HERB {
+    bigint herb_id PK
+    string cn_name
+    string pinyin
+    bigint category_id FK
+  }
+  HERB_CATEGORY {
+    bigint category_id PK
+    string cn_name
+    bigint parent_id FK
+  }
+  HERB_COMPOUND {
+    bigint herb_id FK
+    bigint compound_id FK
+    string content "含量"
+  }
+  PATHWAY {
+    bigint pathway_id PK
+    string name
+    string source "KEGG/Reactome"
+  }
+  TARGET_PATHWAY {
+    bigint target_id FK
+    bigint pathway_id FK
+  }
+  PUBLICATION {
+    bigint pub_id PK
+    string pmid "唯一"
+    string doi
+    int year
+  }
+  HOST {
+    bigint host_id PK
+    string species "人/鼠"
+    string model "无菌鼠/人源化菌群鼠…"
+  }
+  METHODOLOGY {
+    bigint method_id PK
+    string detection_method "16S/宏基因组/代谢组"
+    string platform
+  }
