@@ -1,0 +1,63 @@
+erDiagram
+  taxon ||--o{ strain : "分类归属"
+  strain ||--o{ genome : "装配版本"
+  genome ||--o{ microbial_gene : "具体位点"
+  genome ||--o{ gene_cluster : "基因簇"
+  gene_cluster ||--o{ cluster_member : "成员"
+  microbial_gene ||--o{ cluster_member : "成员"
+  microbial_gene ||--o{ gene_product : "编码断言"
+  protein ||--o{ gene_product : "编码产物"
+  microbial_gene ||--o{ gene_annotation : "功能注释"
+  functional_term ||--o{ gene_annotation : "KO等类别"
+  protein ||--o{ protein_annotation : "酶分类注释"
+  functional_term ||--o{ protein_annotation : "EC等类别"
+  protein ||--o{ protein_reaction : "催化断言"
+  reaction ||--o{ protein_reaction : "被催化"
+  reaction ||--o{ reaction_participant : "反应参与物"
+  compound ||--o{ reaction_participant : "底物或产物"
+  reaction ||--o{ transformation : "实验中发生"
+  observation ||--o{ transformation : "检测证据"
+  transformation ||--o{ transformation_actor : "多个参与者"
+  taxon |o--o{ transformation_actor : "菌级归属可未知"
+  strain |o--o{ transformation_actor : "株级归属可未知"
+  protein |o--o{ transformation_actor : "酶可未知"
+  observation ||--o{ gene_product : "证据"
+  observation ||--o{ gene_annotation : "证据"
+  observation ||--o{ protein_annotation : "证据"
+  observation ||--o{ protein_reaction : "证据"
+  reaction {
+    bigint id PK
+    text direction
+    text completeness
+  }
+  reaction_participant {
+    bigint reaction_id PK,FK
+    bigint compound_id PK,FK
+    text side PK
+    text compartment PK
+    numeric stoichiometry
+  }
+  microbial_gene {
+    bigint id PK
+    bigint genome_id FK
+    text locus_tag
+  }
+  protein {
+    bigint id PK
+    text uniprot_accession
+    bigint strain_id FK
+  }
+  functional_term {
+    bigint id PK
+    text namespace
+    text accession
+    text release
+  }
+  transformation {
+    bigint id PK
+    bigint reaction_id FK
+    bigint observation_id FK
+    text attribution
+    text substrate_origin
+    text product_origin
+  }

@@ -1,0 +1,19 @@
+flowchart LR
+ H["中药 herb"] --> HC["含成分断言 herb_compound"] --> C["原型化合物 compound"]
+ C --> A["① compound_target / compound_host_gene"]
+ A --> T["宿主靶点或基因（区分人鼠）"] --> TD["target_disease"] --> D["疾病 disease"]
+ C --> R["② reaction + reaction_participant"]
+ R --> X["transformation：特定实验观察"]
+ X --> M["产物 compound"] --> A
+ C --> CM["③ compound_microbe：丰度/生长观察"]
+ CM --> B["菌群 taxon / strain"]
+ B --> CF["cross_feeding：交换物与方向"] --> X
+ S["内源/饮食等底物 compound"] --> R
+ B --> G["genome → microbial_gene → gene_product"]
+ G --> P["protein：具体酶蛋白"]
+ P --> PR["protein_reaction：预测或实验"] --> R
+ C --> F["compound_gene / compound_protein：表达或活性调控"] --> P
+ E["source_record → experiment → context → observation"]
+ E -. "为每项断言提供证据" .-> X
+ E -.-> A
+ E -.-> CM
