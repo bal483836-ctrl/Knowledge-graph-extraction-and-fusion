@@ -1,0 +1,176 @@
+erDiagram
+  compound["化合物 Compound"] {
+    bigint id PK "内部编号 ID"
+    text name "名称 Name"
+    string inchikey "结构键 InChIKey"
+  }
+  herb["中药 Herb"] {
+    bigint id PK "内部编号 ID"
+    text name "名称 Name"
+    text medicinal_part "medicinal_part"
+  }
+  taxon["菌分类单元 Taxon"] {
+    bigint id PK "内部编号 ID"
+    bigint parent_id FK "关联编号 Foreign ID"
+    text name "名称 Name"
+  }
+  strain["菌株 Strain"] {
+    bigint id PK "内部编号 ID"
+    bigint taxon_id FK "关联编号 Foreign ID"
+    text name "名称 Name"
+  }
+  genome["基因组 Genome"] {
+    bigint id PK "内部编号 ID"
+    bigint strain_id FK "关联编号 Foreign ID"
+    text assembly_version "组装版本 Assembly version"
+  }
+  microbial_gene["微生物基因 Microbial Gene"] {
+    bigint id PK "内部编号 ID"
+    bigint genome_id FK "关联编号 Foreign ID"
+    text locus_tag "基因位点 Locus tag"
+  }
+  protein["微生物蛋白或酶 Protein / Enzyme"] {
+    bigint id PK "内部编号 ID"
+    bigint strain_id FK "关联编号 Foreign ID"
+    text name "名称 Name"
+  }
+  host_gene["宿主基因 Host Gene"] {
+    bigint id PK "内部编号 ID"
+    bigint host_taxid "宿主物种 Host taxid"
+    text symbol "symbol"
+  }
+  host_target["宿主靶点 Host Target"] {
+    bigint id PK "内部编号 ID"
+    bigint host_taxid "宿主物种 Host taxid"
+    text name "名称 Name"
+  }
+  host_gene_product["宿主基因产物 Host Gene Product"] {
+    bigint gene_id PK,FK "关联编号 Foreign ID"
+    bigint target_id PK,FK "关联编号 Foreign ID"
+  }
+  disease["疾病 Disease"] {
+    bigint id PK "内部编号 ID"
+    text name "名称 Name"
+    text ontology "ontology"
+  }
+  observation["观察证据 Observation"] {
+    bigint id PK "内部编号 ID"
+    bigint experiment_id FK "关联编号 Foreign ID"
+    bigint context_id "关联编号 Foreign ID"
+  }
+  reaction["反应定义 Reaction"] {
+    bigint id PK "内部编号 ID"
+    text name "名称 Name"
+    text rhea_id "关联编号 Foreign ID"
+  }
+  reaction_participant["反应参与物 Reaction Participant"] {
+    bigint reaction_id PK,FK "关联编号 Foreign ID"
+    bigint compound_id PK,FK "关联编号 Foreign ID"
+    text side PK "底物或产物 Side"
+  }
+  transformation["转化观察 Transformation"] {
+    bigint id PK "内部编号 ID"
+    bigint reaction_id FK "关联编号 Foreign ID"
+    bigint observation_id FK "关联编号 Foreign ID"
+  }
+  transformation_actor["转化参与者 Transformation Actor"] {
+    bigint id PK "内部编号 ID"
+    bigint transformation_id FK "关联编号 Foreign ID"
+    bigint taxon_id FK "关联编号 Foreign ID"
+  }
+  herb_compound["中药含成分 Herb Compound"] {
+    bigint id PK "内部编号 ID"
+    bigint herb_id FK "关联编号 Foreign ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+  }
+  gene_product["基因编码蛋白 Gene Product"] {
+    bigint id PK "内部编号 ID"
+    bigint gene_id FK "关联编号 Foreign ID"
+    bigint protein_id FK "关联编号 Foreign ID"
+  }
+  protein_reaction["蛋白催化反应 Protein Reaction"] {
+    bigint id PK "内部编号 ID"
+    bigint protein_id FK "关联编号 Foreign ID"
+    bigint reaction_id FK "关联编号 Foreign ID"
+  }
+  compound_target["成分靶点作用 Compound Target"] {
+    bigint id PK "内部编号 ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint target_id FK "关联编号 Foreign ID"
+  }
+  compound_host_gene["成分调控宿主基因 Compound Host Gene"] {
+    bigint id PK "内部编号 ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint gene_id FK "关联编号 Foreign ID"
+  }
+  target_disease["靶点疾病关系 Target Disease"] {
+    bigint id PK "内部编号 ID"
+    bigint target_id FK "关联编号 Foreign ID"
+    bigint disease_id FK "关联编号 Foreign ID"
+  }
+  compound_microbe["成分菌变化 Compound Microbe"] {
+    bigint id PK "内部编号 ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint taxon_id FK "关联编号 Foreign ID"
+  }
+  compound_gene["成分微生物基因调控 Compound Gene"] {
+    bigint id PK "内部编号 ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint gene_id FK "关联编号 Foreign ID"
+  }
+  compound_protein["成分微生物蛋白调控 Compound Protein"] {
+    bigint id PK "内部编号 ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint protein_id FK "关联编号 Foreign ID"
+  }
+  cross_feeding["交叉喂养 Cross Feeding"] {
+    bigint id PK "内部编号 ID"
+    bigint donor_id FK "关联编号 Foreign ID"
+    bigint recipient_id FK "关联编号 Foreign ID"
+  }
+  taxon |o--o{ taxon : "parent_id 关联 Link"
+  taxon ||--o{ strain : "taxon_id 关联 Link"
+  strain ||--o{ genome : "strain_id 关联 Link"
+  genome ||--o{ microbial_gene : "genome_id 关联 Link"
+  strain |o--o{ protein : "strain_id 关联 Link"
+  host_gene ||--o{ host_gene_product : "gene_id 关联 Link"
+  host_target ||--o{ host_gene_product : "target_id 关联 Link"
+  reaction ||--o{ reaction_participant : "reaction_id 关联 Link"
+  compound ||--o{ reaction_participant : "compound_id 关联 Link"
+  reaction ||--o{ transformation : "reaction_id 关联 Link"
+  observation ||--o{ transformation : "observation_id 关联 Link"
+  transformation ||--o{ transformation_actor : "transformation_id 关联 Link"
+  taxon |o--o{ transformation_actor : "taxon_id 关联 Link"
+  strain |o--o{ transformation_actor : "strain_id 关联 Link"
+  protein |o--o{ transformation_actor : "protein_id 关联 Link"
+  herb ||--o{ herb_compound : "herb_id 关联 Link"
+  compound ||--o{ herb_compound : "compound_id 关联 Link"
+  observation ||--o{ herb_compound : "observation_id 关联 Link"
+  microbial_gene ||--o{ gene_product : "gene_id 关联 Link"
+  protein ||--o{ gene_product : "protein_id 关联 Link"
+  observation ||--o{ gene_product : "observation_id 关联 Link"
+  protein ||--o{ protein_reaction : "protein_id 关联 Link"
+  reaction ||--o{ protein_reaction : "reaction_id 关联 Link"
+  observation ||--o{ protein_reaction : "observation_id 关联 Link"
+  compound ||--o{ compound_target : "compound_id 关联 Link"
+  host_target ||--o{ compound_target : "target_id 关联 Link"
+  observation ||--o{ compound_target : "observation_id 关联 Link"
+  compound ||--o{ compound_host_gene : "compound_id 关联 Link"
+  host_gene ||--o{ compound_host_gene : "gene_id 关联 Link"
+  observation ||--o{ compound_host_gene : "observation_id 关联 Link"
+  host_target ||--o{ target_disease : "target_id 关联 Link"
+  disease ||--o{ target_disease : "disease_id 关联 Link"
+  observation ||--o{ target_disease : "observation_id 关联 Link"
+  compound ||--o{ compound_microbe : "compound_id 关联 Link"
+  taxon ||--o{ compound_microbe : "taxon_id 关联 Link"
+  observation ||--o{ compound_microbe : "observation_id 关联 Link"
+  compound ||--o{ compound_gene : "compound_id 关联 Link"
+  microbial_gene ||--o{ compound_gene : "gene_id 关联 Link"
+  observation ||--o{ compound_gene : "observation_id 关联 Link"
+  compound ||--o{ compound_protein : "compound_id 关联 Link"
+  protein ||--o{ compound_protein : "protein_id 关联 Link"
+  observation ||--o{ compound_protein : "observation_id 关联 Link"
+  taxon ||--o{ cross_feeding : "donor_id 关联 Link"
+  taxon ||--o{ cross_feeding : "recipient_id 关联 Link"
+  compound ||--o{ cross_feeding : "compound_id 关联 Link"
+  observation ||--o{ cross_feeding : "observation_id 关联 Link"

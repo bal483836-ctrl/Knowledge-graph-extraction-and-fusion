@@ -1,0 +1,85 @@
+erDiagram
+  compound["化合物 Compound"] {
+    bigint id PK "内部编号 ID"
+    text name "名称 Name"
+    string inchikey "结构键 InChIKey"
+    text identity_status "identity_status"
+  }
+  herb["中药 Herb"] {
+    bigint id PK "内部编号 ID"
+    text name "名称 Name"
+    text medicinal_part "medicinal_part"
+    text processing "processing"
+  }
+  host_gene["宿主基因 Host Gene"] {
+    bigint id PK "内部编号 ID"
+    bigint host_taxid "宿主物种 Host taxid"
+    text symbol "symbol"
+    text gene_accession "gene_accession"
+  }
+  host_target["宿主靶点 Host Target"] {
+    bigint id PK "内部编号 ID"
+    bigint host_taxid "宿主物种 Host taxid"
+    text name "名称 Name"
+    text kind "类别 Kind"
+    text accession "登录号 Accession"
+  }
+  host_gene_product["宿主基因产物 Host Gene Product"] {
+    bigint gene_id PK,FK "关联编号 Foreign ID"
+    bigint target_id PK,FK "关联编号 Foreign ID"
+  }
+  disease["疾病 Disease"] {
+    bigint id PK "内部编号 ID"
+    text name "名称 Name"
+    text ontology "ontology"
+    text accession "登录号 Accession"
+  }
+  observation["观察证据 Observation"] {
+    bigint id PK "内部编号 ID"
+    bigint experiment_id FK "关联编号 Foreign ID"
+    bigint context_id "关联编号 Foreign ID"
+    bigint subject_arm_id "关联编号 Foreign ID"
+    bigint control_arm_id "关联编号 Foreign ID"
+  }
+  herb_compound["中药含成分 Herb Compound"] {
+    bigint id PK "内部编号 ID"
+    bigint herb_id FK "关联编号 Foreign ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint observation_id FK "关联编号 Foreign ID"
+    text role "关系角色 Role"
+  }
+  compound_target["成分靶点作用 Compound Target"] {
+    bigint id PK "内部编号 ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint target_id FK "关联编号 Foreign ID"
+    bigint observation_id FK "关联编号 Foreign ID"
+    text action "作用方式 Action"
+  }
+  compound_host_gene["成分调控宿主基因 Compound Host Gene"] {
+    bigint id PK "内部编号 ID"
+    bigint compound_id FK "关联编号 Foreign ID"
+    bigint gene_id FK "关联编号 Foreign ID"
+    bigint observation_id FK "关联编号 Foreign ID"
+    text action "作用方式 Action"
+  }
+  target_disease["靶点疾病关系 Target Disease"] {
+    bigint id PK "内部编号 ID"
+    bigint target_id FK "关联编号 Foreign ID"
+    bigint disease_id FK "关联编号 Foreign ID"
+    bigint observation_id FK "关联编号 Foreign ID"
+    text relation "关系类型 Relation"
+  }
+  host_gene ||--o{ host_gene_product : "gene_id 关联 Link"
+  host_target ||--o{ host_gene_product : "target_id 关联 Link"
+  herb ||--o{ herb_compound : "herb_id 关联 Link"
+  compound ||--o{ herb_compound : "compound_id 关联 Link"
+  observation ||--o{ herb_compound : "observation_id 关联 Link"
+  compound ||--o{ compound_target : "compound_id 关联 Link"
+  host_target ||--o{ compound_target : "target_id 关联 Link"
+  observation ||--o{ compound_target : "observation_id 关联 Link"
+  compound ||--o{ compound_host_gene : "compound_id 关联 Link"
+  host_gene ||--o{ compound_host_gene : "gene_id 关联 Link"
+  observation ||--o{ compound_host_gene : "observation_id 关联 Link"
+  host_target ||--o{ target_disease : "target_id 关联 Link"
+  disease ||--o{ target_disease : "disease_id 关联 Link"
+  observation ||--o{ target_disease : "observation_id 关联 Link"
